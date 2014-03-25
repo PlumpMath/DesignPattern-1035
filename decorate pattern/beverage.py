@@ -105,6 +105,7 @@ shop = TTCoffee()
 
 shop.testOrder()
 
+# Question : if add size(S, M, L), how to calculate price?
 
 
 
