@@ -21,8 +21,8 @@ class Light(object):
 
 class LightOnCommand(Command):
 	
-	def __init__(self):
-		self.light = Light()
+	def __init__(self, light):
+		self.light = light
 	def execute(self):
 		self.light.on()
 	def undo(self):
@@ -30,8 +30,8 @@ class LightOnCommand(Command):
 
 class LightOffCommand(Command):
 	
-	def __init__(self):
-		self.light = Light()
+	def __init__(self, light):
+		self.light = light
 	def execute(self):
 		self.light.off()
 	def undo(self):
@@ -53,8 +53,8 @@ class TV(object):
 
 class TVOnCommand(Command):
 	
-	def __init__(self):
-		self.tv = TV()
+	def __init__(self, tv):
+		self.tv = tv
 	def execute(self):
 		self.tv.on()
 	def undo(self):
@@ -62,8 +62,8 @@ class TVOnCommand(Command):
 
 class TVOffCommand(Command):
 	
-	def __init__(self):
-		self.tv = TV()
+	def __init__(self, tv):
+		self.tv = tv
 	def execute(self):
 		self.tv.off()
 	def undo(self):
@@ -84,8 +84,8 @@ class Stereo(object):
 
 class StereoOnCommand(Command):
 	
-	def __init__(self):
-		self.stereo = Stereo()
+	def __init__(self, stereo):
+		self.stereo = stereo
 	def execute(self):
 		self.stereo.on()
 		self.stereo.setCD()
@@ -95,8 +95,8 @@ class StereoOnCommand(Command):
 
 class StereoOffCommand(Command):
 	
-	def __init__(self):
-		self.stereo = Stereo()
+	def __init__(self, stereo):
+		self.stereo = stereo
 	def execute(self):
 		self.stereo.off()
 	def undo(self):
@@ -166,6 +166,19 @@ class CeilingFanOff(CeilingFanCommand):
 		self.prevSpeed = self.ceilingFan.getSpeed()
 		self.ceilingFan.off()
 
+
+# Macro Command
+class MacroCommand(Command):
+
+	def __init__(self, commands):
+		self.commands = commands
+	def execute(self):
+		for item in self.commands:
+			item.execute()
+	def undo(self):
+		for item in self.commands:
+			item.undo()
+
 # simple remote control
 class simpleRemoteControl(object):
 
@@ -230,4 +243,14 @@ remoteLoader.onButtonWasPressed(2)
 remoteLoader.onButtonWasPressed(1)
 remoteLoader.undoButtonWasPressed()
 
+light = Light()
+tv = TV()
+stereo = Stereo()
 
+macroOnCommand = MacroCommand([LightOnCommand(light), TVOnCommand(tv), StereoOnCommand(stereo)])
+macroOffCommand = MacroCommand([LightOffCommand(light), TVOffCommand(tv), StereoOffCommand(stereo)])
+remoteLoader.setCommand(3, macroOnCommand, macroOffCommand)
+
+remoteLoader.onButtonWasPressed(3)
+remoteLoader.offButtonWasPressed(3)
+remoteLoader.undoButtonWasPressed()
