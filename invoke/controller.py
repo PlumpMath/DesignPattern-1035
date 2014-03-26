@@ -104,6 +104,68 @@ class StereoOffCommand(Command):
 		self.stereo.setCD()
 		self.stereo.setVolume(11)
 
+# CeilingFan
+class CeilingFan(object):
+	high = 3
+	median = 2
+	low = 1
+	off = 0
+	speed = 0
+
+	def __init__(self):
+		self.speed = self.off
+	def setHigh(self):
+		self.speed = self.high
+		print 'set ceilingfan high'
+	def setMedian(self):
+		self.speed = self.median
+		print 'set ceilingfan median'
+	def setLow(self):
+		self.speed = self.low
+		print 'set ceilingfan low'
+	def off(self):
+		self.speed = self.off
+		print 'set ceilingfan off'
+	def getSpeed(self):
+		return self.speed
+
+class CeilingFanCommand(Command):
+	def __init__(self, ceilingFan):
+		self.ceilingFan = ceilingFan
+	def undo(self):
+		if(self.prevSpeed == self.ceilingFan.high):
+			self.ceilingFan.setHigh()
+		elif(self.prevSpeed == self.ceilingFan.median):
+			self.ceilingFan.setMedian()
+		elif(self.prevSpeed == self.ceilingFan.low):
+			self.ceilingFan.setLow()
+		else:
+			self.ceilingFan.off()
+
+class CeilingFanHigh(CeilingFanCommand):
+
+	def execute(self):
+		self.prevSpeed = self.ceilingFan.speed
+		self.ceilingFan.setHigh()
+
+class CeilingFanMedian(CeilingFanCommand):
+
+	def execute(self):
+		self.prevSpeed = self.ceilingFan.speed
+		self.ceilingFan.setMedian()
+
+class CeilingFanLow(CeilingFanCommand):
+
+	def execute(self):
+		self.prevSpeed = self.ceilingFan.speed
+		self.ceilingFan.setLow()
+
+class CeilingFanOff(CeilingFanCommand):
+
+	def execute(self):
+		self.prevSpeed = self.ceilingFan.getSpeed()
+		self.ceilingFan.off()
+
 # simple remote control
 class simpleRemoteControl(object):
 
@@ -137,7 +199,6 @@ class RemoteControl(object):
 	def onButtonWasPressed(self, slot):
 		self.onCommand[slot].execute()
 		self.lastCommand = self.onCommand[slot]
-
 	def offButtonWasPressed(self, slot):
 		self.offCommand[slot].execute()
 		self.lastCommand = self.offCommand[slot]
@@ -145,10 +206,12 @@ class RemoteControl(object):
 		self.lastCommand.undo()
 
 
+'''
 remote = RemoteControl()
 remote.setCommand(0, LightOnCommand(), LightOffCommand())
 remote.setCommand(1, TVOnCommand(), TVOffCommand())
 remote.setCommand(2, StereoOnCommand(), StereoOffCommand())
+
 
 remote.undoButtonWasPressed()
 for i in range(0, 3):
@@ -156,6 +219,15 @@ for i in range(0, 3):
 	remote.undoButtonWasPressed()
 	remote.offButtonWasPressed(i)
 	remote.undoButtonWasPressed()
+'''
+remoteLoader = RemoteControl()
+ceilingFan = CeilingFan()
+remoteLoader.setCommand(0, CeilingFanHigh(ceilingFan), CeilingFanOff(ceilingFan))
+remoteLoader.setCommand(1, CeilingFanMedian(ceilingFan), CeilingFanOff(ceilingFan))
+remoteLoader.setCommand(2, CeilingFanLow(ceilingFan), CeilingFanOff(ceilingFan))
 
+remoteLoader.onButtonWasPressed(2)
+remoteLoader.onButtonWasPressed(1)
+remoteLoader.undoButtonWasPressed()
 
 
