@@ -3,6 +3,11 @@ class Command(object):
 	def execute(self):
 		pass
 
+class NoCommand(Command):
+
+	def execute(self):
+		print 'is nocommand'
+
 # light
 class Light(object):
 
@@ -114,8 +119,8 @@ remote.buttonPressed()
 class RemoteControl(object):
 
 	def __init__(self):
-		self.onCommand = [Command() for i in range(0, 7)]
-		self.offCommand = [Command() for i in range(0, 7)]
+		self.onCommand = [NoCommand() for i in range(0, 7)]
+		self.offCommand = [NoCommand() for i in range(0, 7)]
 
 	def setCommand(self, slot, onCommand, offCommand):
 		self.onCommand[slot] = onCommand
@@ -133,7 +138,7 @@ remote.setCommand(0, LightOnCommand(), LightOffCommand())
 remote.setCommand(1, TVOnCommand(), TVOffCommand())
 remote.setCommand(2, StereoOnCommand(), StereoOffCommand())
 
-for i in range(0, 3):
+for i in range(0, 7):
 	remote.onButtonWasPressed(i)
 	remote.offButtonWasPressed(i)
 
